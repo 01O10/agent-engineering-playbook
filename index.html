@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Engineering: A Practical Guide</title>
+<meta name="description" content="Interactive guide + project planner for building AI agent systems — from prototype to production. 7 chapters, 16-dimension decision matrix, 56-task phased backlog.">
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+<style>
+  body { margin: 0; font-family: Georgia, Cambria, serif; background: #fff; }
+  #loading { display: flex; justify-content: center; align-items: center; height: 100vh; font-family: system-ui, sans-serif; color: #999; font-size: 14px; }
+</style>
+</head>
+<body>
+<div id="root"><div id="loading">Loading guide...</div></div>
+<script>
+fetch('agent-engineering.jsx')
+  .then(function(r) { return r.text(); })
+  .then(function(jsx) {
+    jsx = jsx.replace(/import\s*\{[^}]+\}\s*from\s*["']react["'];?/, 'const { useState } = React;');
+    jsx = jsx.replace(/export\s+default\s+function\s+App/, 'window.App = function App');
+    var code = Babel.transform(jsx, { presets: ['react'] }).code;
+    var script = document.createElement('script');
+    script.textContent = code;
+    document.body.appendChild(script);
+    ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(window.App));
+  })
+  .catch(function(err) {
+    document.getElementById('loading').textContent = 'Failed to load: ' + err.message;
+  });
+</script>
+</body>
+</html>

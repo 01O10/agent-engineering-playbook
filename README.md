@@ -1,6 +1,6 @@
 # Agent Engineering Playbook
 
-A comprehensive interactive lesson and project planner for building AI agent systems — from local prototype to production operations.
+A comprehensive interactive guide and project planner for building AI agent systems — from local prototype to production operations.
 
 ## What this is
 
@@ -8,7 +8,7 @@ An interactive React application covering the full lifecycle of agent engineerin
 
 **Two modes:**
 
-- **Lesson** (7 chapters) — conceptual foundations covering the agent loop, tool design, context engineering, evaluation methodology, architecture patterns, security, and the full prototype-to-production journey (HITL, domain knowledge, model portfolios, environment tiers, production engineering)
+- **Guide** (7 chapters) — conceptual foundations covering the agent loop, tool design, context engineering, evaluation methodology, architecture patterns, security, and the full prototype-to-production journey (HITL, domain knowledge, model portfolios, environment tiers, production engineering)
 - **Project Planner** — a 16-dimension decision matrix feeding into a 56-task phased backlog, each task with role assignment, deliverables, done criteria, dependencies, complexity rating, variability indicator, scope drivers, required skills, and participant count
 
 ## Key features
@@ -20,7 +20,7 @@ An interactive React application covering the full lifecycle of agent engineerin
 - **Exportable** — the backlog exports as Markdown with checkboxes, ready to paste into Linear, Notion, GitHub Issues, or any project tracker
 - **38 numbered references** with clickable links throughout
 
-## Lesson chapters
+## Guide chapters
 
 1. **Foundations** — Agent loop, workflow patterns, paradigm shift, economics, framework selection
 2. **Tools** — Two-layer action space, tool descriptions as prompt engineering, MCP, progressive disclosure

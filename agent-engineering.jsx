@@ -316,7 +316,7 @@ return(
 <div style={{fontFamily:"'Georgia','Cambria',serif",maxWidth:780,margin:"0 auto",padding:"24px 20px 60px",color:"#1a1a1a",lineHeight:1.7}}>
 <div style={{marginBottom:24}}>
 <div style={{display:"inline-flex",gap:6,marginBottom:12,flexWrap:"wrap"}}>
-<span style={{fontSize:10,letterSpacing:"2.5px",textTransform:"uppercase",color:"#fff",background:"#111",padding:"4px 12px",borderRadius:3,fontFamily:"system-ui,sans-serif",fontWeight:700}}>Beta</span>
+<span style={{fontSize:10,letterSpacing:"2.5px",textTransform:"uppercase",color:"#fff",background:"#111",padding:"4px 12px",borderRadius:3,fontFamily:"system-ui,sans-serif",fontWeight:700}}>V9</span>
 <span style={{fontSize:10,letterSpacing:"1px",textTransform:"uppercase",color:"#666",background:"#f0f0f0",padding:"4px 10px",borderRadius:3,fontFamily:"system-ui,sans-serif",fontWeight:600}}>Prototype→Production · 56 Tasks · 16 Dimensions</span>
 </div>
 <h1 style={{fontSize:27,fontWeight:800,lineHeight:1.12,margin:"0 0 8px",letterSpacing:"-0.6px"}}>Agent Engineering: A Practical Guide</h1>

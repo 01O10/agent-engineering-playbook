@@ -373,6 +373,85 @@ const phases=[
 ]},
 ];
 
+function GanttChart({phases,meta,ck}){
+const allTasks=phases.flatMap(p=>p.tasks.map(t=>({...t,phase:p.id,phaseName:p.name})));
+const taskMap=Object.fromEntries(allTasks.map(t=>[t.id,t]));
+// Compute topological levels (earliest start)
+const levels={};
+function getLevel(id){
+  if(levels[id]!==undefined)return levels[id];
+  const t=taskMap[id];
+  if(!t||!t.deps||t.deps.length===0){levels[id]=0;return 0}
+  const maxDep=Math.max(...t.deps.map(d=>{
+    // Handle "i4a||i4b" style OR-deps
+    if(d.includes("||")){const parts=d.split("||");return Math.min(...parts.map(p=>taskMap[p]?getLevel(p):0))}
+    return taskMap[d]?getLevel(d):0;
+  }));
+  levels[id]=maxDep+1;return maxDep+1;
+}
+allTasks.forEach(t=>getLevel(t.id));
+const maxLevel=Math.max(...Object.values(levels),0);
+const colW=Math.max(38,Math.min(56,680/(maxLevel+1)));
+const phaseColors={design:"#d4a76a",infra:"#6a9fd4",build:"#6ab87a",eval:"#9a7abf",iterate:"#c9a84c",ops:"#d47a6a"};
+return(
+<div style={{overflowX:"auto",marginBottom:24,border:"1px solid #e0e0e0",borderRadius:8,background:"#fafafa"}}>
+<div style={{padding:"14px 16px 6px",fontSize:13,fontWeight:700,fontFamily:"system-ui,sans-serif",borderBottom:"1px solid #eee",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+<span>Dependency Gantt — {allTasks.length} tasks across {maxLevel+1} dependency levels</span>
+<span style={{fontSize:10,color:"#999",fontWeight:400}}>Bar width = complexity · Position = earliest start given dependencies</span>
+</div>
+{/* Level headers */}
+<div style={{display:"flex",paddingLeft:170,borderBottom:"1px solid #eee",background:"#f4f4f4"}}>
+{Array.from({length:maxLevel+1},(_,i)=>(
+<div key={i} style={{width:colW,minWidth:colW,textAlign:"center",fontSize:8,fontWeight:600,color:"#aaa",padding:"4px 0",fontFamily:"system-ui,sans-serif",borderLeft:i>0?"1px solid #eee":"none"}}>{i}</div>
+))}
+</div>
+{/* Phase groups */}
+{phases.map(p=>{
+const pTasks=allTasks.filter(t=>t.phase===p.id);
+return(
+<div key={p.id}>
+<div style={{fontSize:10,fontWeight:700,padding:"6px 12px 3px",color:phaseColors[p.id]||"#666",fontFamily:"system-ui,sans-serif",background:"#f8f8f8",borderBottom:"1px solid #f0f0f0",letterSpacing:"0.3px",textTransform:"uppercase"}}>{p.name.split("—")[0].trim()}</div>
+{pTasks.map(t=>{
+const m=meta[t.id]||{cx:2};
+const level=levels[t.id]||0;
+const isDone=ck[t.id];
+const barW=Math.max(m.cx*colW*0.55,colW*0.4);
+return(
+<div key={t.id} style={{display:"flex",alignItems:"center",borderBottom:"1px solid #f5f5f5",height:22}}>
+<div style={{width:170,minWidth:170,fontSize:9.5,fontFamily:"system-ui,sans-serif",padding:"0 8px",color:isDone?"#aaa":"#555",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",textDecoration:isDone?"line-through":"none"}} title={t.task}>
+<span style={{color:"#bbb",marginRight:4}}>{t.id}</span>{t.task}
+</div>
+<div style={{flex:1,position:"relative",height:"100%",display:"flex",alignItems:"center"}}>
+{/* Grid lines */}
+{Array.from({length:maxLevel+1},(_,i)=>(
+<div key={i} style={{position:"absolute",left:i*colW,top:0,bottom:0,width:1,background:i>0?"#f0f0f0":"none"}}/>
+))}
+{/* Task bar */}
+<div style={{
+position:"absolute",
+left:level*colW+2,
+height:14,
+width:barW,
+borderRadius:3,
+background:isDone?"#ccc":(phaseColors[t.phase]||"#999"),
+opacity:isDone?0.5:0.85,
+display:"flex",alignItems:"center",paddingLeft:4,
+fontSize:8,color:"#fff",fontWeight:600,fontFamily:"system-ui,sans-serif",
+overflow:"hidden",whiteSpace:"nowrap"
+}} title={`${t.id}: Cx ${m.cx}/5, Level ${level}`}>
+{t.id}
+</div>
+</div>
+</div>
+);})}
+</div>
+);})}
+<div style={{padding:"8px 12px",fontSize:9,color:"#bbb",fontFamily:"system-ui,sans-serif",borderTop:"1px solid #eee"}}>
+Level 0 = no dependencies (can start immediately). Each subsequent level requires all upstream dependencies to complete first. Bar width reflects relative complexity (1-5).
+</div>
+</div>
+);}
+
 function TaskCard({t,done,onToggle}){const m=meta[t.id]||{cx:2,va:"M",scope:"—",skills:"—",ppl:"1",who:"—"};return(
 <div style={{marginBottom:10,background:done?"#f0faf0":"#fafafa",border:`1px solid ${done?"#c3e6c3":"#eee"}`,borderRadius:8,padding:"12px 14px"}}>
 <div style={{display:"flex",gap:10,alignItems:"flex-start"}}>
@@ -412,6 +491,7 @@ const[phase,setPhase]=useState("design");
 const[ck,setCk]=useState({});
 const[showExp,setShowExp]=useState(false);
 const[showRefs,setShowRefs]=useState(false);
+const[showGantt,setShowGantt]=useState(false);
 const toggle=(a,b)=>{const k=`${a}-${b}`;setExp(p=>({...p,[k]:!p[k]}))};
 const allT=phases.flatMap(p=>p.tasks);
 const doneN=allT.filter(t=>ck[t.id]).length;
@@ -521,6 +601,7 @@ return(
 </div>
 <div style={{display:"flex",alignItems:"flex-end",paddingBottom:12}}>
 <button onClick={()=>setShowExp(!showExp)} style={{padding:"8px 16px",borderRadius:6,border:"1px solid #1a1a1a",background:"#1a1a1a",color:"#fff",fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"system-ui,sans-serif"}}>{showExp?"Hide":"Export"}</button>
+<button onClick={()=>setShowGantt(!showGantt)} style={{padding:"8px 16px",borderRadius:6,border:"1px solid #1a6baa",background:showGantt?"#1a6baa":"#fff",color:showGantt?"#fff":"#1a6baa",fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"system-ui,sans-serif",marginLeft:6}}>{showGantt?"Hide Gantt":"Gantt"}</button>
 </div></div>
 
 {showExp&&<div style={{marginBottom:18}}>
@@ -530,6 +611,8 @@ return(
 </div>
 <pre style={{background:"#f4f4f4",border:"1px solid #ddd",borderRadius:8,padding:14,fontSize:10.5,lineHeight:1.5,maxHeight:240,overflowY:"auto",whiteSpace:"pre-wrap",fontFamily:"'SF Mono','Consolas',monospace"}}>{"# Agent Project Backlog\n"+expTxt}</pre>
 </div>}
+
+{showGantt&&<GanttChart phases={phases} meta={meta} ck={ck}/>}
 
 <div style={{display:"flex",gap:4,marginBottom:14,overflowX:"auto",fontFamily:"system-ui,sans-serif"}}>
 {phases.map(p=>{const pD=p.tasks.filter(t=>ck[t.id]).length;const act=phase===p.id;return(

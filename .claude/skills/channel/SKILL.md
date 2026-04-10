@@ -84,7 +84,6 @@ Merge channel into current:
 
 1. Move sessions from source to current channel
 2. Update parent links chronologically
-3. Keep beads references intact
 
 ### Output
 
@@ -182,7 +181,7 @@ Archive sessions:
 /channel archive <session>           # Archive one session
 /channel archive --before 2026-01-20 # Archive before date
 /channel archive --older 14          # Archive older than N days
-/channel archive --closed            # Archive with all beads closed
+/channel archive --closed            # Archive completed channels
 ```
 
 ### Output
@@ -191,7 +190,6 @@ Archive sessions:
 ## Archive Complete
 
 **Sessions archived**: 3 → `.sessions/_archive/`
-**Beads closed**: 2
 **Parent links updated**: 1
 ```
 
@@ -274,7 +272,7 @@ muted | /channel unmute to resume
 
 Archive:
 ```
-archived: 3 sessions | bd closed: 2
+archived: 3 sessions
 ```
 
 ---

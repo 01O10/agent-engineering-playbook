@@ -26,12 +26,14 @@ if ! $PY -c "import core.reflexivity" 2>/dev/null; then
     exit 0
 fi
 
-# Single python call for all init
+# Single python call for all init — always creates a fresh identity
+# so each conversation gets its own agent. Updates .current-agent so
+# the MCP server and other hooks find this session's identity.
 OUTPUT=$($PY -c "
 import sys
 try:
-    from core.reflexivity.identity import get_or_create_identity
-    identity = get_or_create_identity()
+    from core.reflexivity.identity import create_new_session_identity
+    identity = create_new_session_identity()
     print(f'Agent: {identity.get(\"alias\", \"unknown\")} ({identity.get(\"id\", \"unknown\")})')
     print(f'Channel: {identity.get(\"channel\", \"main\")}')
 except Exception as e:

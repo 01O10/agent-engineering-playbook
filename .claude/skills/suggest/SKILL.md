@@ -6,7 +6,7 @@ argument-hint: '[fresh | proven] [quiet]'
 
 # Workflow Improvement
 
-Analyze session journals, friction logs, and beads to propose workflow improvements.
+Analyze session journals and friction logs to propose workflow improvements.
 
 ## Arguments
 
@@ -43,8 +43,6 @@ Parse $ARGUMENTS:
 
 - `.sessions/<channel>/` - session journals
 - `.prm/friction-log.md` - accumulated friction
-- `bd stale --days 30` - neglected tasks
-- `bd ready` - pending work
 
 ### Analysis
 
@@ -58,7 +56,6 @@ Parse $ARGUMENTS:
 ## Workflow Improvement
 
 **Source**: logs (5 sessions, 12 friction entries)
-**Beads**: 3 open, 1 stale
 
 ### Proposal 1: [Type] - [Name]
 
@@ -220,4 +217,3 @@ baked: 2 | archived: 3 | remaining: 1
 - Default to `focus` mode (evidence-based)
 - Skills have HIGH BAR (3+ occurrences, 3+ steps)
 - Announce source mode
-- Use `bd create` for project tasks

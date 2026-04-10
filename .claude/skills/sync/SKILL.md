@@ -177,12 +177,6 @@ Examples:
 
 This digest provides immediate context about what happened since you last synced, making it easy to pick up where work left off or understand what automated loops accomplished.
 
-### 6. Task Context
-
-Run:
-- `bd ready --json` - unblocked tasks
-- `bd stale --days 14 --json` - neglected tasks (if any)
-
 ---
 
 ## Check Mode: Verify Alignment & Staleness
@@ -203,7 +197,6 @@ Use mid-conversation to detect drift between agent state and filesystem, AND det
 | Decision drift | New decisions logged | Major choice made, not logged |
 | Session drift | New sessions added to channel | File modified |
 | Staged notes | Notes added externally | File modified |
-| Beads drift | New tasks created/closed | State changed |
 
 ### How It Works
 
@@ -263,7 +256,6 @@ fi
 | decisions.md | DRIFT | 1 new decision added |
 | sessions/ | DRIFT | 2 new sessions in main |
 | staged-notes | OK | No changes |
-| beads | OK | No new tasks |
 
 ### Recommendation
 
@@ -408,7 +400,7 @@ python .self/bin/validate-prm.py --verbose  # Extra details
 ## Project Context
 
 ### Rules (CLAUDE.md)
-- Session start: read status.md, run `bd ready`
+- Session start: read status.md
 - Git: new commits only (no amend/force unless requested)
 - Skills: /sync, /save, /note, /goal, /decide, /suggest, /channel, /validate
 
@@ -420,7 +412,6 @@ python .self/bin/validate-prm.py --verbose  # Extra details
 ### Objectives (Active)
 - [ ] Simplify skill commands (28 → 8)
 - [ ] Add channel support for sessions
-- [ ] Integrate beads task tracking
 
 ### Recent Decisions
 | Date | Decision |
@@ -449,16 +440,6 @@ Terms: 45 | Rules: 12 | Validity checks: 8
 
 **Other Channels**: pipeline (2), infra (1)
 
-### Tasks (Beads)
-
-**Ready** (unblocked):
-| ID | Title | Priority |
-|----|-------|----------|
-| bd-xxx | LME convergence | P2 |
-| bd-yyy | Stage06 enrichment | P2 |
-
-**Stale** (>14d): None
-
 ---
 
 Ready to work. Use `/goal` for objectives, `/save` when done.
@@ -470,7 +451,7 @@ Ready to work. Use `/goal` for objectives, `/save` when done.
 
 Default:
 ```
-rules: session→status.md+bd | git→new commits | skills: 8
+rules: session→status.md | git→new commits | skills: 8
 status: Sprint 01-30 (skill simplification) | no blockers
 goals: 3 active | decisions: 15 total
 domain: 45 terms, 12 rules
@@ -544,7 +525,6 @@ If `.sessions/.muted` exists:
 - Fix mode modifies files (status.md, objectives.md)
 - Designed for conversation start (or mid-check)
 - Loads full project context, not just sessions
-- Includes beads for task awareness
 - Shows other channels for context
 - Check mode compares against "last known" state
 - Fix mode only auto-applies safe fixes; prompts for others

@@ -164,21 +164,11 @@ timestamp: <HH:MM>
 ## Key Learnings
 - [Insight]
 
-## Tasks Spawned
-[bd issue IDs if any]
-
 ## Open Questions
 - [Unresolved items]
 ```
 
-## Step 5: Spawn Beads Issues (if applicable)
-
-For identified next steps:
-```bash
-bd create "<task>" -p 2 -d "From session: YYYY-MM-DD_title.md" --json
-```
-
-## Step 6: Clear Staging
+## Step 5: Clear Staging
 
 Delete or empty `.prm/staged-notes.md`.
 

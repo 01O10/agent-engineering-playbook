@@ -56,29 +56,20 @@ if [[ -z "$AGENT_ID" ]]; then
     export AGENT_ID AGENT_ALIAS CHANNEL
 fi
 
-# 2. Ensure worktree exists (ENFORCED - always creates isolated branch for agent)
-WORKTREE_OUTPUT=$($PY -c "
-from extensions.multi_agent.worktree import ensure_worktree
-from core.reflexivity.identity import load_identity, save_identity
-import os
-
-# Ensure worktree exists for this agent
-worktree_path = ensure_worktree(quiet=True)
-
-# Update identity with worktree path if created
-if worktree_path:
-    identity = load_identity()
-    if identity and identity.get('worktree_path') != str(worktree_path):
-        identity['worktree_path'] = str(worktree_path)
-        save_identity(identity)
-    print(str(worktree_path))
-" 2>&1) || {
-    echo "Warning: Worktree ensure failed: $WORKTREE_OUTPUT" >&2
-    WORKTREE_OUTPUT=""
-}
-if [[ -n "$WORKTREE_OUTPUT" ]]; then
-    WORKTREE_PATH="$WORKTREE_OUTPUT"
-fi
+# 2. Worktree isolation (DISABLED — single-agent project, worktree wipes main checkout)
+# To re-enable for multi-agent: uncomment the block below
+# WORKTREE_OUTPUT=$($PY -c "
+# from extensions.multi_agent.worktree import ensure_worktree
+# from core.reflexivity.identity import load_identity, save_identity
+# worktree_path = ensure_worktree(quiet=True)
+# if worktree_path:
+#     identity = load_identity()
+#     if identity and identity.get('worktree_path') != str(worktree_path):
+#         identity['worktree_path'] = str(worktree_path)
+#         save_identity(identity)
+#     print(str(worktree_path))
+# " 2>&1) || WORKTREE_OUTPUT=""
+# if [[ -n "$WORKTREE_OUTPUT" ]]; then WORKTREE_PATH="$WORKTREE_OUTPUT"; fi
 
 # 3. Pull sync state (quiet)
 SYNC_OUTPUT=$($PY -c "

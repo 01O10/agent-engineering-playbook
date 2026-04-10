@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "self": {
+      "command": "uv",
+      "args": [
+        "run",
+        "python",
+        "-m",
+        "self_mcp.server"
+      ]
+    }
+  }
+}

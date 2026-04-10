@@ -1,0 +1,40 @@
+name: publish
+description: Publish agent work to GitHub (push branch + create PR)
+invocable: user
+prompt: |
+  Push the current agent branch to remote and create a pull request for review.
+
+  This will:
+  1. Push your agent branch to GitHub (origin)
+  2. Create a PR targeting the main branch
+  3. Include agent attribution and session details in the PR
+
+  The PR will include:
+  - Agent identity (alias and ID)
+  - Channel name
+  - Commit history since divergence from main
+  - File change statistics
+  - Co-author attribution
+
+  Options:
+  - Use --draft to create as draft PR
+  - Use --skip-pr to only push the branch without creating a PR
+  - Use --cleanup to clean up merged agent branches
+
+  Examples:
+  ```bash
+  # Publish with PR (default)
+  slf publish run
+
+  # Create draft PR
+  slf publish run --draft
+
+  # Push only, no PR
+  slf publish run --skip-pr
+
+  # Clean up merged branches
+  slf publish run --cleanup
+  ```
+
+  Note: Requires `gh` CLI to be installed and authenticated.
+  Run `gh auth login` if not already authenticated.

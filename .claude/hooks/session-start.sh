@@ -20,14 +20,17 @@ fi
 
 cd "$ROOT" || exit 0
 
+# Use uv run to ensure virtualenv with self-cli is active
+PY="uv run python"
+
 # Check if framework is available
-if ! python -c "import core.reflexivity" 2>/dev/null; then
+if ! $PY -c "import core.reflexivity" 2>/dev/null; then
     echo "self framework not installed, skipping session init"
     exit 0
 fi
 
 # 1. Ensure agent identity
-IDENTITY_OUTPUT=$(python -c "
+IDENTITY_OUTPUT=$($PY -c "
 from core.reflexivity.identity import get_or_create_identity
 identity = get_or_create_identity()
 print(f\"AGENT_ID={identity['id']}\")
@@ -54,7 +57,7 @@ if [[ -z "$AGENT_ID" ]]; then
 fi
 
 # 2. Ensure worktree exists (ENFORCED - always creates isolated branch for agent)
-WORKTREE_OUTPUT=$(python -c "
+WORKTREE_OUTPUT=$($PY -c "
 from extensions.multi_agent.worktree import ensure_worktree
 from core.reflexivity.identity import load_identity, save_identity
 import os
@@ -78,7 +81,7 @@ if [[ -n "$WORKTREE_OUTPUT" ]]; then
 fi
 
 # 3. Pull sync state (quiet)
-SYNC_OUTPUT=$(python -c "
+SYNC_OUTPUT=$($PY -c "
 from extensions.multi_agent.sync import sync_pull_local
 result = sync_pull_local(quiet=True)
 " 2>&1) || {
@@ -86,7 +89,7 @@ result = sync_pull_local(quiet=True)
 }
 
 # 4. Check for reservation conflicts
-CONFLICTS=$(python -c "
+CONFLICTS=$($PY -c "
 from extensions.multi_agent.reserve import check_reservation_conflicts
 result = check_reservation_conflicts(quiet=True)
 if result.get('has_conflicts'):
@@ -118,7 +121,7 @@ fi
 echo "───────────────────────────────────"
 
 # 5.5 Hydrated context
-CONTEXT=$(PYTHONPATH="${ROOT}/src" python -c "
+CONTEXT=$($PY -c "
 from extensions.memory.context import build_context, format_context_markdown
 print(format_context_markdown(build_context()))
 " 2>/dev/null) || CONTEXT=""
@@ -140,7 +143,7 @@ fi
 
 # 8. Start background heartbeat (dies with shell)
 (while true; do
-    python -c "from core.reflexivity.identity import write_heartbeat; write_heartbeat()" 2>/dev/null
+    $PY -c "from core.reflexivity.identity import write_heartbeat; write_heartbeat()" 2>/dev/null
     sleep 300
 done) >/dev/null 2>&1 &
 # No need to track PID — background process dies when parent shell exits

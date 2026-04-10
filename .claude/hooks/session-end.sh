@@ -69,14 +69,20 @@ if [[ -n "$TASK_WARN" ]]; then
     echo "$TASK_WARN"
 fi
 
-# 5. Cleanup stale worktrees (only if worktrees exist)
+# 5. Cleanup stale worktrees (only if actual agent worktrees exist)
+# Safety: only run if ../.worktrees contains agent directories.
+# Never clean from the main repo root — the Python cleanup has its own
+# guards, but we add a shell-level check too.
 if [[ -d "../.worktrees" ]]; then
-    CLEANUP_OUTPUT=$($PY -c "
+    AGENT_DIRS=$(find "../.worktrees" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | head -1)
+    if [[ -n "$AGENT_DIRS" ]]; then
+        CLEANUP_OUTPUT=$($PY -c "
 from extensions.multi_agent.worktree import cleanup_stale_worktrees
 cleanup_stale_worktrees(max_age_days=1, dry_run=False, quiet=True)
 " 2>&1) || {
-        echo "Warning: Worktree cleanup failed: $CLEANUP_OUTPUT" >&2
-    }
+            echo "Warning: Worktree cleanup failed: $CLEANUP_OUTPUT" >&2
+        }
+    fi
 fi
 
 echo "Session ended. State synced."

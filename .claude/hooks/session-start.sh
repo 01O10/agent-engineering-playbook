@@ -26,10 +26,26 @@ if ! $PY -c "import core.reflexivity" 2>/dev/null; then
     exit 0
 fi
 
-# Single python call for all init — always creates a fresh identity
-# so each conversation gets its own agent. Updates .current-agent so
-# the MCP server and other hooks find this session's identity.
-OUTPUT=$($PY -c "
+# Create a fresh identity for this session.
+# Uses SSE port as session fingerprint to avoid creating duplicates
+# if the hook fires more than once in the same session.
+SESSION_FP="${CLAUDE_CODE_SSE_PORT:-$$}"
+MARKER="$ROOT/.self/cache/.session-fp"
+if [[ -f "$MARKER" ]] && [[ "$(cat "$MARKER" 2>/dev/null)" == "$SESSION_FP" ]]; then
+    # Same session — reuse existing identity
+    OUTPUT=$($PY -c "
+import sys
+try:
+    from core.reflexivity.identity import get_or_create_identity
+    identity = get_or_create_identity()
+    print(f'Agent: {identity.get(\"alias\", \"unknown\")} ({identity.get(\"id\", \"unknown\")})')
+    print(f'Channel: {identity.get(\"channel\", \"main\")}')
+except Exception as e:
+    print(f'Agent init failed: {e}', file=sys.stderr)
+" 2>&1) || OUTPUT=""
+else
+    # New session — create fresh identity
+    OUTPUT=$($PY -c "
 import sys
 try:
     from core.reflexivity.identity import create_new_session_identity
@@ -39,6 +55,9 @@ try:
 except Exception as e:
     print(f'Agent init failed: {e}', file=sys.stderr)
 " 2>&1) || OUTPUT=""
+    mkdir -p "$ROOT/.self/cache"
+    echo "$SESSION_FP" > "$MARKER"
+fi
 
 if [[ -n "$OUTPUT" ]]; then
     echo "$OUTPUT"

@@ -1,0 +1,11 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Agent runtime state (created per-session, not project config)
+.self/agents/.current-agent
+.self/agents/agent-*/
+.self/cache/
+.self/.audit.jsonl
+.self/.sync-state.json

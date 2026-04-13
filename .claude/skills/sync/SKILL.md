@@ -104,28 +104,35 @@ Read `.self/agents/{id}/.current` for channel (or `slf channel current -q`), the
 
 ### 5.5. Probe State (auto-init if missing)
 
-Check whether the knowledge probe is initialized. If either `.self/tiers/probe.yaml` or `tier_checks.py` is missing, run the bootstrap:
+Check whether the knowledge probe is initialized. If either `.self/tiers/probe.yaml` or `tier_checks.py` is missing, run the bootstrap.
 
-```python
-# Use the Python API directly (works regardless of how slf is installed)
+**IMPORTANT**: Use the project venv Python (`.venv/bin/python` or `uv run python`), not system Python. The `self-cli` package must be importable.
+
+```bash
+# Init probe if missing
+if [ ! -f ".self/tiers/probe.yaml" ] || [ ! -f "tier_checks.py" ]; then
+    uv run python -c "
 from extensions.tiers.probe_bootstrap import init_probe
 from pathlib import Path
-
-if not Path(".self/tiers/probe.yaml").exists() or not Path("tier_checks.py").exists():
-    summary = init_probe(Path("."))
-    # Report what was created
+summary = init_probe(Path('.'))
+created = summary.get('files_created', [])
+print(f'Probe: initialized ({len(created)} files created)')
+"
+fi
 ```
 
 If probe was just initialized, note it in the output:
 ```
-Probe: initialized (N files tracked, run `uv run slf probe status -v` for details)
+Probe: initialized (2 files created)
 ```
 
-If probe already exists, show a one-liner from the tier summary:
-```python
+If probe already exists, show tier status:
+```bash
+uv run python -c "
 from extensions.tiers.tiers_cmd import get_integrity
 ti = get_integrity()
-print(ti.summary())  # → "source: authoritative | knowledge: verified | 0 cascades"
+print('Probe:', ti.summary())
+"
 ```
 
 ### 5.6. Change Digest (if baseline exists)

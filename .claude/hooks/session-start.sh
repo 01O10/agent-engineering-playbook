@@ -47,12 +47,3 @@ fi
 # Reset session trace file
 mkdir -p "$ROOT/.self/cache"
 : > "$ROOT/.self/cache/session_traces.jsonl"
-
-# Auto-init probe if not bootstrapped yet
-if [[ ! -f "$ROOT/.self/tiers/probe.yaml" ]] || [[ ! -f "$ROOT/tier_checks.py" ]]; then
-    $PY -c "
-from extensions.tiers.probe_bootstrap import init_probe
-from pathlib import Path
-init_probe(Path('.'))
-" 2>/dev/null && echo "Probe: auto-initialized"
-fi

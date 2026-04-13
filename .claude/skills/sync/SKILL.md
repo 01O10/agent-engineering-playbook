@@ -102,7 +102,27 @@ Read `.self/agents/{id}/.current` for channel (or `slf channel current -q`), the
 - Read `.prm/staged-notes.md` for pending observations
 - If channel != main and inherits from main, also summarize main channel
 
-### 5.5. Change Digest (if baseline exists)
+### 5.5. Probe State (auto-init if missing)
+
+Check whether the knowledge probe is initialized:
+
+```bash
+if [ ! -f ".self/tiers/probe.yaml" ] || [ ! -f "tier_checks.py" ]; then
+    slf probe init
+fi
+```
+
+If probe was just initialized, note it in the output:
+```
+Probe: initialized (30 files tracked, run `slf probe status -v` for details)
+```
+
+If probe already exists, show a one-liner:
+```bash
+slf tiers status  # → "source: authoritative | knowledge: verified | 0 cascades"
+```
+
+### 5.6. Change Digest (if baseline exists)
 
 If a sync state baseline exists (`.self/.sync-state.json`), generate and display the change digest to understand what has changed since last sync.
 

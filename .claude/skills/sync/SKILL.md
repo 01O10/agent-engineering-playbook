@@ -104,22 +104,28 @@ Read `.self/agents/{id}/.current` for channel (or `slf channel current -q`), the
 
 ### 5.5. Probe State (auto-init if missing)
 
-Check whether the knowledge probe is initialized:
+Check whether the knowledge probe is initialized. If either `.self/tiers/probe.yaml` or `tier_checks.py` is missing, run the bootstrap:
 
-```bash
-if [ ! -f ".self/tiers/probe.yaml" ] || [ ! -f "tier_checks.py" ]; then
-    slf probe init
-fi
+```python
+# Use the Python API directly (works regardless of how slf is installed)
+from extensions.tiers.probe_bootstrap import init_probe
+from pathlib import Path
+
+if not Path(".self/tiers/probe.yaml").exists() or not Path("tier_checks.py").exists():
+    summary = init_probe(Path("."))
+    # Report what was created
 ```
 
 If probe was just initialized, note it in the output:
 ```
-Probe: initialized (30 files tracked, run `slf probe status -v` for details)
+Probe: initialized (N files tracked, run `uv run slf probe status -v` for details)
 ```
 
-If probe already exists, show a one-liner:
-```bash
-slf tiers status  # → "source: authoritative | knowledge: verified | 0 cascades"
+If probe already exists, show a one-liner from the tier summary:
+```python
+from extensions.tiers.tiers_cmd import get_integrity
+ti = get_integrity()
+print(ti.summary())  # → "source: authoritative | knowledge: verified | 0 cascades"
 ```
 
 ### 5.6. Change Digest (if baseline exists)

@@ -125,6 +125,7 @@ The digest shows:
   - This makes work from automated loops visible to interactive sessions
 - **Other agents' work**: Sessions posted, decisions made by other agents
 - **PRM changes**: Objectives added/completed, status phase changes, new decisions
+- **Knowledge staleness**: Stale knowledge docs (hash mismatch), high-drift artifacts (when `include_knowledge=True`)
 - **Objective alignment signals**: Potential objective completions detected from work patterns
 
 If no baseline exists (first sync), skip the digest—nothing to compare against.
@@ -173,7 +174,15 @@ Examples:
 - implement change digest
 
 **Decisions added:** 2
+
+### Knowledge Staleness
+**5 docs**: 4 OK, 1 stale, 0 new, 0 untracked
+
+**Stale documents** (hash mismatch):
+- drift_scorer.md
 ```
+
+The Knowledge Staleness section appears when `include_knowledge=True` is passed to `build_change_digest()`. Use this in `/sync check` mode or when explicitly requested. Default `/sync` bootstrap omits it for speed.
 
 This digest provides immediate context about what happened since you last synced, making it easy to pick up where work left off or understand what automated loops accomplished.
 

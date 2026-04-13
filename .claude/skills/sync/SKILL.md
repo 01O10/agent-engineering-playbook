@@ -106,33 +106,38 @@ Read `.self/agents/{id}/.current` for channel (or `slf channel current -q`), the
 
 Check whether the knowledge probe is initialized. If either `.self/tiers/probe.yaml` or `tier_checks.py` is missing, run the bootstrap.
 
-**IMPORTANT**: Use the project venv Python (`.venv/bin/python` or `uv run python`), not system Python. The `self-cli` package must be importable.
+**IMPORTANT**: Never use bare `python` — it won't have self-cli installed.
+Use the same Python detection as session-start.sh: try `.venv/bin/python` first (fast), fall back to `uv run python` (slow), verify self-cli is importable.
 
 ```bash
-# Init probe if missing
-if [ ! -f ".self/tiers/probe.yaml" ] || [ ! -f "tier_checks.py" ]; then
-    uv run python -c "
+# Resolve project Python (same pattern as session-start.sh)
+ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo ".")
+if [ -x "$ROOT/.venv/bin/python" ]; then
+    PY="$ROOT/.venv/bin/python"
+elif command -v uv >/dev/null 2>&1; then
+    PY="uv run python"
+else
+    echo "Probe: skipped (no Python venv)"
+    PY=""
+fi
+
+# Init or status
+if [ -n "$PY" ] && $PY -c "import core.reflexivity" 2>/dev/null; then
+    if [ ! -f ".self/tiers/probe.yaml" ] || [ ! -f "tier_checks.py" ]; then
+        $PY -c "
 from extensions.tiers.probe_bootstrap import init_probe
 from pathlib import Path
 summary = init_probe(Path('.'))
-created = summary.get('files_created', [])
-print(f'Probe: initialized ({len(created)} files created)')
+print(f'Probe: initialized ({len(summary.get(\"files_created\", []))} files created)')
 "
-fi
-```
-
-If probe was just initialized, note it in the output:
-```
-Probe: initialized (2 files created)
-```
-
-If probe already exists, show tier status:
-```bash
-uv run python -c "
+    else
+        $PY -c "
 from extensions.tiers.tiers_cmd import get_integrity
 ti = get_integrity()
 print('Probe:', ti.summary())
 "
+    fi
+fi
 ```
 
 ### 5.6. Change Digest (if baseline exists)
